@@ -1,0 +1,319 @@
+/**
+ * Admin Styles
+ * File: assets/css/admin.css
+ */
+
+/* ========================================
+   Metabox Styles
+======================================== */
+.tbp-metabox {
+    padding: 15px 0;
+}
+
+.tbp-field {
+    margin-bottom: 20px;
+}
+
+.tbp-field label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #23282d;
+}
+
+.tbp-field label .required {
+    color: #dc3232;
+}
+
+.tbp-field input[type="text"],
+.tbp-field input[type="number"],
+.tbp-field select,
+.tbp-field textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.tbp-field textarea {
+    resize: vertical;
+}
+
+.tbp-field .description {
+    margin: 5px 0 0;
+    color: #666;
+    font-size: 13px;
+    font-style: italic;
+}
+
+/* Field Layouts */
+.tbp-field-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.tbp-field-half {
+    flex: 1;
+}
+
+.tbp-field-third {
+    flex: 0 0 33.333%;
+}
+
+.tbp-field-two-thirds {
+    flex: 0 0 66.666%;
+}
+
+.tbp-field-quarter {
+    flex: 0 0 25%;
+}
+
+/* ========================================
+   Hotels Management
+======================================== */
+#tbp-hotels-wrapper {
+    margin-bottom: 20px;
+}
+
+.tbp-hotel-item {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.tbp-hotel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background: #fff;
+    border-bottom: 1px solid #ddd;
+    cursor: move;
+}
+
+.tbp-hotel-header h3 {
+    margin: 0;
+    font-size: 16px;
+    color: #23282d;
+}
+
+.tbp-hotel-content {
+    padding: 20px;
+}
+
+.tbp-remove-hotel {
+    color: #dc3232;
+    border-color: #dc3232;
+}
+
+.tbp-remove-hotel:hover {
+    background: #dc3232;
+    color: #fff;
+    border-color: #dc3232;
+}
+
+.tbp-hotel-placeholder {
+    background: #e8f4f8;
+    border: 2px dashed #0073aa;
+    height: 100px;
+    margin-bottom: 20px;
+    border-radius: 6px;
+}
+
+/* ========================================
+   Amenities Checkboxes
+======================================== */
+.tbp-amenities {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+}
+
+.tbp-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tbp-checkbox:hover {
+    background: #f0f0f0;
+    border-color: #0073aa;
+}
+
+.tbp-checkbox input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+}
+
+.tbp-checkbox input[type="checkbox"]:checked + span {
+    font-weight: 600;
+    color: #0073aa;
+}
+
+/* ========================================
+   Gallery Management
+======================================== */
+.tbp-gallery-container {
+    padding: 15px;
+    background: #fafafa;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.tbp-gallery-images {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.tbp-gallery-image {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #fff;
+}
+
+.tbp-gallery-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.tbp-remove-image {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 24px;
+    height: 24px;
+    background: rgba(220, 50, 50, 0.9);
+    color: #fff;
+    text-align: center;
+    line-height: 24px;
+    border-radius: 50%;
+    text-decoration: none;
+    font-size: 18px;
+    font-weight: bold;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.tbp-gallery-image:hover .tbp-remove-image {
+    opacity: 1;
+}
+
+.tbp-remove-image:hover {
+    background: #dc3232;
+    transform: scale(1.1);
+}
+
+/* ========================================
+   Responsive
+======================================== */
+@media (max-width: 782px) {
+    .tbp-field-row {
+        flex-direction: column;
+    }
+    
+    .tbp-field-half,
+    .tbp-field-third,
+    .tbp-field-two-thirds,
+    .tbp-field-quarter {
+        flex: 1 1 auto;
+    }
+    
+    .tbp-hotel-header {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+    
+    .tbp-amenities {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ========================================
+   WordPress Editor Compatibility
+======================================== */
+.tbp-metabox .wp-editor-wrap {
+    margin-bottom: 0;
+}
+
+.tbp-metabox .wp-editor-container {
+    border: 1px solid #ddd;
+}
+
+/* ========================================
+   Loading States
+======================================== */
+.tbp-loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.tbp-loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #0073aa;
+    border-radius: 50%;
+    animation: tbp-spin 1s linear infinite;
+}
+
+@keyframes tbp-spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* ========================================
+   Notices
+======================================== */
+.tbp-notice {
+    padding: 12px 20px;
+    margin: 15px 0;
+    border-left: 4px solid;
+    border-radius: 4px;
+}
+
+.tbp-notice.tbp-notice-success {
+    background: #ecf7ed;
+    border-color: #46b450;
+    color: #2e7d32;
+}
+
+.tbp-notice.tbp-notice-error {
+    background: #fef7f1;
+    border-color: #dc3232;
+    color: #d32f2f;
+}
+
+.tbp-notice.tbp-notice-warning {
+    background: #fff8e5;
+    border-color: #ffb900;
+    color: #8a6d3b;
+}
+
+.tbp-notice.tbp-notice-info {
+    background: #e8f4f8;
+    border-color: #0073aa;
+    color: #01579b;
+}
