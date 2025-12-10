@@ -21,8 +21,8 @@ class TBP_Metaboxes {
     
     private function __construct() {
         add_action('add_meta_boxes', array($this, 'add_metaboxes'));
-        add_action('save_post', array($this, 'save_city_meta'), 10, 2);
-        add_action('save_post', array($this, 'save_trip_meta'), 10, 2);
+        add_action('save_post_tbp_city', array($this, 'save_city_meta'), 10, 2);
+        add_action('save_post_tbp_trip', array($this, 'save_trip_meta'), 10, 2);
     }
     
     /**
@@ -56,6 +56,15 @@ class TBP_Metaboxes {
             'tbp_trip',
             'normal',
             'high'
+        );
+        
+        add_meta_box(
+            'tbp_trip_gallery',
+            __('معرض صور الرحلة', 'travel-booking'),
+            array($this, 'render_trip_gallery'),
+            'tbp_trip',
+            'side',
+            'default'
         );
     }
     
@@ -102,10 +111,12 @@ class TBP_Metaboxes {
                     <div class="tbp-gallery-images">
                         <?php if (!empty($gallery_ids)) : ?>
                             <?php foreach ($gallery_ids as $img_id) : ?>
-                                <div class="tbp-gallery-image">
-                                    <?php echo wp_get_attachment_image($img_id, 'thumbnail'); ?>
-                                    <a href="#" class="tbp-remove-image" data-id="<?php echo esc_attr($img_id); ?>">×</a>
-                                </div>
+                                <?php if (wp_attachment_is_image($img_id)) : ?>
+                                    <div class="tbp-gallery-image">
+                                        <?php echo wp_get_attachment_image($img_id, 'thumbnail'); ?>
+                                        <a href="#" class="tbp-remove-image" data-id="<?php echo esc_attr($img_id); ?>">×</a>
+                                    </div>
+                                <?php endif; ?>
                             <?php endforeach; ?>
                         <?php endif; ?>
                     </div>
@@ -162,7 +173,7 @@ class TBP_Metaboxes {
         ?>
         <div class="tbp-hotel-item" data-index="<?php echo esc_attr($index); ?>">
             <div class="tbp-hotel-header">
-                <h3><?php _e('فندق', 'travel-booking'); ?> #<span class="hotel-number"><?php echo esc_html($index + 1); ?></span></h3>
+                <h3><?php _e('فندق', 'travel-booking'); ?> #<span class="hotel-number"><?php echo esc_html(is_numeric($index) ? $index + 1 : 1); ?></span></h3>
                 <button type="button" class="button button-small tbp-remove-hotel"><?php _e('حذف', 'travel-booking'); ?></button>
             </div>
             
@@ -194,10 +205,12 @@ class TBP_Metaboxes {
                         <div class="tbp-gallery-images">
                             <?php if (!empty($gallery_ids)) : ?>
                                 <?php foreach ($gallery_ids as $img_id) : ?>
-                                    <div class="tbp-gallery-image">
-                                        <?php echo wp_get_attachment_image($img_id, 'thumbnail'); ?>
-                                        <a href="#" class="tbp-remove-image" data-id="<?php echo esc_attr($img_id); ?>">×</a>
-                                    </div>
+                                    <?php if (wp_attachment_is_image($img_id)) : ?>
+                                        <div class="tbp-gallery-image">
+                                            <?php echo wp_get_attachment_image($img_id, 'thumbnail'); ?>
+                                            <a href="#" class="tbp-remove-image" data-id="<?php echo esc_attr($img_id); ?>">×</a>
+                                        </div>
+                                    <?php endif; ?>
                                 <?php endforeach; ?>
                             <?php endif; ?>
                         </div>
@@ -268,8 +281,6 @@ class TBP_Metaboxes {
         $includes = get_post_meta($post->ID, '_tbp_trip_includes', true);
         $excludes = get_post_meta($post->ID, '_tbp_trip_excludes', true);
         $max_people = get_post_meta($post->ID, '_tbp_trip_max_people', true);
-        $gallery = get_post_meta($post->ID, '_tbp_trip_gallery', true);
-        $gallery_ids = !empty($gallery) ? explode(',', $gallery) : array();
         
         // Get all cities
         $cities = get_posts(array(
@@ -319,14 +330,12 @@ class TBP_Metaboxes {
             <div class="tbp-field-row">
                 <div class="tbp-field tbp-field-half">
                     <label><?php _e('يشمل', 'travel-booking'); ?></label>
-                    <textarea name="tbp_trip_includes" rows="5"><?php echo esc_textarea($includes); ?></textarea>
-                    <p class="description"><?php _e('مثال: الإقامة، وجبات الطعام، المواصلات', 'travel-booking'); ?></p>
+                    <textarea name="tbp_trip_includes" rows="5" placeholder="<?php _e('مثال: الإقامة، وجبات الطعام، المواصلات (سطر لكل عنصر)', 'travel-booking'); ?>"><?php echo esc_textarea($includes); ?></textarea>
                 </div>
                 
                 <div class="tbp-field tbp-field-half">
                     <label><?php _e('لا يشمل', 'travel-booking'); ?></label>
-                    <textarea name="tbp_trip_excludes" rows="5"><?php echo esc_textarea($excludes); ?></textarea>
-                    <p class="description"><?php _e('مثال: التأشيرات، التأمين الشخصي', 'travel-booking'); ?></p>
+                    <textarea name="tbp_trip_excludes" rows="5" placeholder="<?php _e('مثال: التأشيرات، التأمين الشخصي (سطر لكل عنصر)', 'travel-booking'); ?>"><?php echo esc_textarea($excludes); ?></textarea>
                 </div>
             </div>
             
@@ -334,21 +343,36 @@ class TBP_Metaboxes {
                 <label><?php _e('الحد الأقصى للأشخاص', 'travel-booking'); ?></label>
                 <input type="number" name="tbp_trip_max_people" value="<?php echo esc_attr($max_people); ?>" min="1" step="1" />
             </div>
-            
+        </div>
+        <?php
+    }
+    
+    /**
+     * Render Trip Gallery Metabox
+     */
+    public function render_trip_gallery($post) {
+        $gallery = get_post_meta($post->ID, '_tbp_trip_gallery', true);
+        $gallery_ids = !empty($gallery) ? explode(',', $gallery) : array();
+        ?>
+        
+        <div class="tbp-metabox">
             <div class="tbp-field">
-                <label><?php _e('معرض صور الرحلة', 'travel-booking'); ?></label>
                 <div class="tbp-gallery-container">
                     <div class="tbp-gallery-images">
                         <?php if (!empty($gallery_ids)) : ?>
                             <?php foreach ($gallery_ids as $img_id) : ?>
-                                <div class="tbp-gallery-image">
-                                    <?php echo wp_get_attachment_image($img_id, 'thumbnail'); ?>
-                                    <a href="#" class="tbp-remove-image" data-id="<?php echo esc_attr($img_id); ?>">×</a>
-                                </div>
+                                <?php if (wp_attachment_is_image($img_id)) : ?>
+                                    <div class="tbp-gallery-image">
+                                        <?php echo wp_get_attachment_image($img_id, 'thumbnail'); ?>
+                                        <a href="#" class="tbp-remove-image" data-id="<?php echo esc_attr($img_id); ?>">×</a>
+                                    </div>
+                                <?php endif; ?>
                             <?php endforeach; ?>
                         <?php endif; ?>
                     </div>
-                    <button type="button" class="button tbp-add-gallery-images"><?php _e('إضافة صور', 'travel-booking'); ?></button>
+                    <button type="button" class="button button-primary button-large tbp-add-gallery-images" style="width: 100%; margin-top: 10px;">
+                        <?php _e('إضافة صور للمعرض', 'travel-booking'); ?>
+                    </button>
                     <input type="hidden" name="tbp_trip_gallery" value="<?php echo esc_attr($gallery); ?>" />
                 </div>
             </div>
@@ -393,19 +417,21 @@ class TBP_Metaboxes {
         }
         
         // Save hotels
-        if (isset($_POST['tbp_hotels'])) {
+        if (isset($_POST['tbp_hotels']) && is_array($_POST['tbp_hotels'])) {
             $hotels = array();
             foreach ($_POST['tbp_hotels'] as $hotel) {
-                $hotels[] = array(
-                    'name' => sanitize_text_field($hotel['name']),
-                    'stars' => sanitize_text_field($hotel['stars']),
-                    'description' => sanitize_textarea_field($hotel['description']),
-                    'gallery' => sanitize_text_field($hotel['gallery']),
-                    'price' => absint($hotel['price']),
-                    'amenities' => isset($hotel['amenities']) ? array_map('sanitize_text_field', $hotel['amenities']) : array(),
-                    'phone' => sanitize_text_field($hotel['phone']),
-                    'address' => sanitize_text_field($hotel['address']),
-                );
+                if (!empty($hotel['name'])) {
+                    $hotels[] = array(
+                        'name' => sanitize_text_field($hotel['name']),
+                        'stars' => sanitize_text_field($hotel['stars']),
+                        'description' => sanitize_textarea_field($hotel['description']),
+                        'gallery' => sanitize_text_field($hotel['gallery']),
+                        'price' => absint($hotel['price']),
+                        'amenities' => isset($hotel['amenities']) ? array_map('sanitize_text_field', $hotel['amenities']) : array(),
+                        'phone' => sanitize_text_field($hotel['phone']),
+                        'address' => sanitize_text_field($hotel['address']),
+                    );
+                }
             }
             update_post_meta($post_id, '_tbp_city_hotels', $hotels);
         } else {
