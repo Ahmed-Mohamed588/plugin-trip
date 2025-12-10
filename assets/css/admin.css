@@ -158,7 +158,7 @@
 }
 
 .tbp-checkbox input[type="checkbox"]:checked ~ span,
-.tbp-checkbox input[type="checkbox"]:checked + label {
+.tbp-checkbox input[type="checkbox"]:checked + span {
     font-weight: 600;
     color: #0073aa;
 }
@@ -223,6 +223,33 @@
 .tbp-remove-image:hover {
     background: #dc3232;
     transform: scale(1.1);
+}
+
+/* ========================================
+   إخفاء External Featured Image
+======================================== */
+#postimagediv-external,
+.rwmb-field[data-field-id*="external"],
+.rwmb-field[data-field-id*="External"],
+div[id*="external_featured"],
+div[class*="external-featured"],
+.acf-field[data-name*="external"],
+.acf-field[data-name*="External"] {
+    display: none !important;
+}
+
+/* رسالة توضيحية للصورة البارزة */
+#postimagediv::before {
+    content: "استخدم هذا الحقل لتحديد الصورة البارزة الرئيسية";
+    display: block;
+    padding: 10px;
+    background: #e7f3ff;
+    border: 1px solid #0073aa;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    color: #0073aa;
+    font-weight: 600;
+    font-size: 13px;
 }
 
 /* ========================================
