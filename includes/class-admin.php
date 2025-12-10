@@ -25,7 +25,6 @@ class TBP_Admin {
         add_action('manage_tbp_city_posts_custom_column', array($this, 'city_column_content'), 10, 2);
         add_filter('manage_tbp_trip_posts_columns', array($this, 'trip_columns'));
         add_action('manage_tbp_trip_posts_custom_column', array($this, 'trip_column_content'), 10, 2);
-        // تم إزالة تحذير ACF لأن البلاجن يعمل بدونه
     }
     
     public function add_admin_menu() {
@@ -129,11 +128,6 @@ class TBP_Admin {
                         </a>
                     </div>
                 </div>
-                
-                <div class="tbp-help-box">
-                    <h2><?php _e('ملاحظات مهمة', 'travel-booking'); ?></h2>
-                    <p><?php _e('هذا البلاجن لا يحتاج إلى أي إضافات خارجية. جميع الوظائف تعمل بشكل مستقل.', 'travel-booking'); ?></p>
-                </div>
             </div>
         </div>
         
@@ -218,17 +212,6 @@ class TBP_Admin {
             }
             .tbp-quick-link .dashicons {
                 font-size: 20px;
-            }
-            .tbp-help-box {
-                background: #e7f3ff;
-                border: 1px solid #007bff;
-                border-radius: 8px;
-                padding: 30px;
-                margin: 20px 0;
-            }
-            .tbp-help-box h2 {
-                margin: 0 0 10px;
-                color: #007bff;
             }
             @media (max-width: 782px) {
                 .tbp-stats,
