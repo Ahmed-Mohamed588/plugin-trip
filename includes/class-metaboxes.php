@@ -23,6 +23,30 @@ class TBP_Metaboxes {
         add_action('add_meta_boxes', array($this, 'add_metaboxes'));
         add_action('save_post_tbp_city', array($this, 'save_city_meta'), 10, 2);
         add_action('save_post_tbp_trip', array($this, 'save_trip_meta'), 10, 2);
+        
+        // إخفاء External Featured Image إذا كان موجود
+        add_action('admin_head', array($this, 'hide_external_featured_image'));
+    }
+    
+    /**
+     * Hide External Featured Image field
+     */
+    public function hide_external_featured_image() {
+        $screen = get_current_screen();
+        if (in_array($screen->post_type, array('tbp_city', 'tbp_trip'))) {
+            ?>
+            <style>
+                /* إخفاء حقل External Featured Image */
+                #postimagediv-external,
+                .rwmb-field[data-field-id*="external"],
+                .rwmb-field[data-field-id*="External"],
+                div[id*="external_featured"],
+                div[class*="external-featured"] {
+                    display: none !important;
+                }
+            </style>
+            <?php
+        }
     }
     
     /**
@@ -123,6 +147,7 @@ class TBP_Metaboxes {
                     <button type="button" class="button tbp-add-gallery-images"><?php _e('إضافة صور', 'travel-booking'); ?></button>
                     <input type="hidden" name="tbp_city_gallery" value="<?php echo esc_attr($gallery); ?>" />
                 </div>
+                <p class="description"><?php _e('اختر صور متعددة من المعرض لعرضها في صفحة المدينة', 'travel-booking'); ?></p>
             </div>
         </div>
         <?php
@@ -215,10 +240,11 @@ class TBP_Metaboxes {
                             <?php endif; ?>
                         </div>
                         <button type="button" class="button tbp-add-hotel-images" data-index="<?php echo esc_attr($index); ?>">
-                            <?php _e('إضافة صور', 'travel-booking'); ?>
+                            <?php _e('إضافة صور من المعرض', 'travel-booking'); ?>
                         </button>
                         <input type="hidden" name="tbp_hotels[<?php echo esc_attr($index); ?>][gallery]" value="<?php echo esc_attr($hotel['gallery']); ?>" class="tbp-hotel-gallery" />
                     </div>
+                    <p class="description"><?php _e('اختر صور متعددة من معرض الوسائط', 'travel-booking'); ?></p>
                 </div>
                 
                 <div class="tbp-field-row">
@@ -258,7 +284,7 @@ class TBP_Metaboxes {
                         ?>
                             <label class="tbp-checkbox">
                                 <input type="checkbox" name="tbp_hotels[<?php echo esc_attr($index); ?>][amenities][]" value="<?php echo esc_attr($key); ?>" <?php checked($checked); ?> />
-                                <?php echo esc_html($label); ?>
+                                <span><?php echo esc_html($label); ?></span>
                             </label>
                         <?php endforeach; ?>
                     </div>
@@ -371,10 +397,11 @@ class TBP_Metaboxes {
                         <?php endif; ?>
                     </div>
                     <button type="button" class="button button-primary button-large tbp-add-gallery-images" style="width: 100%; margin-top: 10px;">
-                        <?php _e('إضافة صور للمعرض', 'travel-booking'); ?>
+                        <?php _e('إضافة صور من المعرض', 'travel-booking'); ?>
                     </button>
                     <input type="hidden" name="tbp_trip_gallery" value="<?php echo esc_attr($gallery); ?>" />
                 </div>
+                <p class="description"><?php _e('اختر صور متعددة من معرض الوسائط', 'travel-booking'); ?></p>
             </div>
         </div>
         <?php
