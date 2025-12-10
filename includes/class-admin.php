@@ -25,7 +25,7 @@ class TBP_Admin {
         add_action('manage_tbp_city_posts_custom_column', array($this, 'city_column_content'), 10, 2);
         add_filter('manage_tbp_trip_posts_columns', array($this, 'trip_columns'));
         add_action('manage_tbp_trip_posts_custom_column', array($this, 'trip_column_content'), 10, 2);
-        add_action('admin_notices', array($this, 'admin_notices'));
+        // تم إزالة تحذير ACF لأن البلاجن يعمل بدونه
     }
     
     public function add_admin_menu() {
@@ -62,7 +62,7 @@ class TBP_Admin {
         
         $hotels_count = 0;
         foreach ($cities as $city_id) {
-            $hotels = get_field('city_hotels', $city_id);
+            $hotels = get_post_meta($city_id, '_tbp_city_hotels', true);
             if ($hotels) {
                 $hotels_count += count($hotels);
             }
@@ -127,17 +127,12 @@ class TBP_Admin {
                             <span class="dashicons dashicons-tag"></span>
                             <?php _e('إدارة المواسم', 'travel-booking'); ?>
                         </a>
-                        <a href="<?php echo admin_url('admin.php?page=travel-booking-settings'); ?>" class="tbp-quick-link">
-                            <span class="dashicons dashicons-admin-settings"></span>
-                            <?php _e('الإعدادات', 'travel-booking'); ?>
-                        </a>
                     </div>
                 </div>
                 
                 <div class="tbp-help-box">
-                    <h2><?php _e('هل تحتاج مساعدة؟', 'travel-booking'); ?></h2>
-                    <p><?php _e('راجع التوثيق الكامل للبلاجن للحصول على تعليمات مفصلة حول الاستخدام والتخصيص.', 'travel-booking'); ?></p>
-                    <a href="#" class="button button-primary"><?php _e('عرض التوثيق', 'travel-booking'); ?></a>
+                    <h2><?php _e('ملاحظات مهمة', 'travel-booking'); ?></h2>
+                    <p><?php _e('هذا البلاجن لا يحتاج إلى أي إضافات خارجية. جميع الوظائف تعمل بشكل مستقل.', 'travel-booking'); ?></p>
                 </div>
             </div>
         </div>
@@ -249,6 +244,7 @@ class TBP_Admin {
         $new_columns = array();
         $new_columns['cb'] = $columns['cb'];
         $new_columns['title'] = $columns['title'];
+        $new_columns['thumbnail'] = __('الصورة', 'travel-booking');
         $new_columns['hotels_count'] = __('عدد الفنادق', 'travel-booking');
         $new_columns['trips_count'] = __('عدد الرحلات', 'travel-booking');
         $new_columns['date'] = $columns['date'];
@@ -258,8 +254,16 @@ class TBP_Admin {
     
     public function city_column_content($column, $post_id) {
         switch ($column) {
+            case 'thumbnail':
+                if (has_post_thumbnail($post_id)) {
+                    echo get_the_post_thumbnail($post_id, array(50, 50));
+                } else {
+                    echo '—';
+                }
+                break;
+                
             case 'hotels_count':
-                $hotels = get_field('city_hotels', $post_id);
+                $hotels = get_post_meta($post_id, '_tbp_city_hotels', true);
                 echo $hotels ? count($hotels) : '0';
                 break;
                 
@@ -269,7 +273,7 @@ class TBP_Admin {
                     'posts_per_page' => -1,
                     'meta_query' => array(
                         array(
-                            'key' => 'trip_city',
+                            'key' => '_tbp_trip_city',
                             'value' => $post_id,
                             'compare' => '=',
                         ),
@@ -285,6 +289,7 @@ class TBP_Admin {
         $new_columns = array();
         $new_columns['cb'] = $columns['cb'];
         $new_columns['title'] = $columns['title'];
+        $new_columns['thumbnail'] = __('الصورة', 'travel-booking');
         $new_columns['city'] = __('المدينة', 'travel-booking');
         $new_columns['season'] = __('الموسم', 'travel-booking');
         $new_columns['price'] = __('السعر', 'travel-booking');
@@ -296,8 +301,16 @@ class TBP_Admin {
     
     public function trip_column_content($column, $post_id) {
         switch ($column) {
+            case 'thumbnail':
+                if (has_post_thumbnail($post_id)) {
+                    echo get_the_post_thumbnail($post_id, array(50, 50));
+                } else {
+                    echo '—';
+                }
+                break;
+                
             case 'city':
-                $city_id = get_field('trip_city', $post_id);
+                $city_id = get_post_meta($post_id, '_tbp_trip_city', true);
                 if ($city_id) {
                     echo '<a href="' . get_edit_post_link($city_id) . '">' . get_the_title($city_id) . '</a>';
                 } else {
@@ -310,7 +323,7 @@ class TBP_Admin {
                 if ($terms && !is_wp_error($terms)) {
                     $seasons = array();
                     foreach ($terms as $term) {
-                        $seasons[] = $term->name;
+                        $seasons[] = '<a href="' . admin_url('edit.php?post_type=tbp_trip&tbp_season=' . $term->slug) . '">' . $term->name . '</a>';
                     }
                     echo implode(', ', $seasons);
                 } else {
@@ -319,29 +332,14 @@ class TBP_Admin {
                 break;
                 
             case 'price':
-                $price = get_field('trip_price', $post_id);
-                echo $price ? number_format($price) . ' ' . __('جنيه', 'travel-booking') : '—';
+                $price = get_post_meta($post_id, '_tbp_trip_price', true);
+                echo $price ? '<strong>' . number_format($price) . '</strong> ' . __('جنيه', 'travel-booking') : '—';
                 break;
                 
             case 'duration':
-                $duration = get_field('trip_duration', $post_id);
-                echo $duration ? $duration . ' ' . __('يوم', 'travel-booking') : '—';
+                $duration = get_post_meta($post_id, '_tbp_trip_duration', true);
+                echo $duration ? '<strong>' . $duration . '</strong> ' . __('يوم', 'travel-booking') : '—';
                 break;
-        }
-    }
-    
-    public function admin_notices() {
-        // Check if ACF is installed
-        if (!class_exists('ACF')) {
-            ?>
-            <div class="notice notice-error">
-                <p>
-                    <strong><?php _e('تحذير:', 'travel-booking'); ?></strong>
-                    <?php _e('بلاجن Travel Booking Pro يتطلب Advanced Custom Fields Pro للعمل بشكل صحيح.', 'travel-booking'); ?>
-                    <a href="https://www.advancedcustomfields.com/pro/" target="_blank"><?php _e('احصل على ACF Pro', 'travel-booking'); ?></a>
-                </p>
-            </div>
-            <?php
         }
     }
 }
